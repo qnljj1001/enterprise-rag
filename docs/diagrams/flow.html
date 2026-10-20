@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>知策 · RAG 流程图</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: #ffffff; }
+      body {
+        font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+        color: #1f2937;
+        -webkit-font-smoothing: antialiased;
+      }
+      .canvas {
+        width: 1720px;
+        margin: 0 auto;
+        padding: 28px 30px 30px;
+      }
+      .title-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .title {
+        font-size: 25px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #111827;
+      }
+      .title span {
+        color: transparent;
+        background: linear-gradient(100deg, #6d5df6, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+      .subtitle {
+        margin-top: 4px;
+        color: #6b7280;
+        font-size: 12px;
+      }
+      .legend {
+        display: flex;
+        gap: 10px;
+        font-size: 11px;
+        color: #6b7280;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 9px;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        background: #fff;
+      }
+      .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+      .dot--orange { background: #f59e0b; }
+      .dot--green { background: #16a34a; }
+      .dot--purple { background: #7c3aed; }
+      .dot--blue { background: #2563eb; }
+
+      .board {
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .lane {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid;
+        border-radius: 16px;
+        padding: 16px 15px 14px;
+      }
+      .lane--entry { flex: 0 0 330px; background: #fff8ed; border-color: #fde4c8; }
+      .lane--online { flex: 1 1 auto; background: #f0fdf4; border-color: #bbf7d0; }
+      .lane--offline { flex: 0 0 380px; background: #f5f3ff; border-color: #ddd6fe; }
+
+      .lane-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed rgba(100, 116, 139, 0.25);
+      }
+      .lane-title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+      }
+      .lane--entry .lane-title { color: #b45309; }
+      .lane--online .lane-title { color: #15803d; }
+      .lane--offline .lane-title { color: #6d28d9; }
+      .lane-sub {
+        color: #6b7280;
+        font-size: 10.5px;
+      }
+
+      .flow {
+        display: flex;
+        flex-direction: column;
+      }
+      .box {
+        padding: 9px 11px;
+        border: 1px solid #d8e0ea;
+        border-radius: 10px;
+        background: #ffffff;
+        text-align: center;
+        font-size: 12.5px;
+        line-height: 1.55;
+        box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03);
+      }
+      .box strong {
+        display: block;
+        font-size: 12.8px;
+        font-weight: 700;
+        color: #111827;
+      }
+      .box small {
+        display: block;
+        margin-top: 2px;
+        color: #6b7280;
+        font-size: 10.5px;
+        line-height: 1.45;
+      }
+      .box--orange { border-color: #f3cf9f; background: #fffaf2; }
+      .box--green { border-color: #b7e4c7; background: #f7fff9; }
+      .box--purple { border-color: #cdbdf7; background: #fbfaff; }
+      .box--blue { border-color: #bfdbfe; background: #f8fbff; }
+      .box--danger { border-color: #f3cfcc; background: #fff7f6; }
+      .box--wide { width: 100%; }
+      .box--primary {
+        border-color: transparent;
+        color: #fff;
+        background: linear-gradient(120deg, #6d5df6 0%, #8b5cf6 55%, #06b6d4 120%);
+        box-shadow: 0 10px 22px rgba(109, 93, 246, 0.22);
+      }
+      .box--primary strong, .box--primary small { color: #fff; }
+      .box--primary small { opacity: 0.8; }
+
+      .down {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 18px;
+        color: #94a3b8;
+        font-size: 16px;
+        line-height: 1;
+      }
+      .branch {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        position: relative;
+      }
+      .branch::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 25%;
+        right: 25%;
+        height: 8px;
+        border-top: 1px dashed #86b89a;
+        border-left: 1px dashed #86b89a;
+        border-right: 1px dashed #86b89a;
+        border-radius: 4px 4px 0 0;
+      }
+      .merge {
+        position: relative;
+        height: 20px;
+      }
+      .merge::before {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 25%;
+        right: 25%;
+        height: 8px;
+        border-bottom: 1px dashed #86b89a;
+        border-left: 1px dashed #86b89a;
+        border-right: 1px dashed #86b89a;
+        border-radius: 0 0 4px 4px;
+      }
+      .merge::after {
+        content: "↓";
+        position: absolute;
+        top: 9px;
+        left: 50%;
+        color: #94a3b8;
+        font-size: 14px;
+        transform: translateX(-50%);
+      }
+
+      .side-note {
+        display: block;
+        margin-top: 8px;
+        padding: 7px 9px;
+        border: 1px dashed #f3cfcc;
+        border-radius: 9px;
+        color: #b42318;
+        background: #fff8f7;
+        font-size: 10.5px;
+        line-height: 1.5;
+      }
+      .side-note b { display: inline; color: #912018; }
+
+      .connector {
+        display: flex;
+        flex: 0 0 36px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: #64748b;
+        font-size: 23px;
+        line-height: 1;
+      }
+      .connector span {
+        max-width: 52px;
+        color: #94a3b8;
+        font-size: 9.5px;
+        line-height: 1.3;
+        text-align: center;
+        writing-mode: vertical-rl;
+        letter-spacing: 0.08em;
+      }
+
+      .bottom {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 14px;
+        padding: 11px 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #6b7280;
+        font-size: 11px;
+      }
+      .bottom b { color: #374151; }
+      .bottom .pill {
+        padding: 3px 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        background: #fff;
+        color: #475569;
+        font-size: 10px;
+      }
+      .diff {
+        margin-top: 10px;
+        color: #9ca3af;
+        font-size: 10px;
+        line-height: 1.6;
+      }
+      .diff b { color: #6b7280; }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="title-row">
+        <div>
+          <div class="title">知策 · <span>企业/政策知识问答 RAG 流程</span></div>
+          <div class="subtitle">Vue 3 + FastAPI + MySQL + Milvus + 本地 bge-m3 + DeepSeek Flash｜输入：用户问题与知识库；输出：带引用的流式回答</div>
+        </div>
+        <div class="legend">
+          <span><i class="dot dot--orange"></i>入口/权限</span>
+          <span><i class="dot dot--green"></i>在线检索</span>
+          <span><i class="dot dot--purple"></i>离线知识库</span>
+          <span><i class="dot dot--blue"></i>数据/存储</span>
+        </div>
+      </div>
+
+      <div class="board">
+        <section class="lane lane--entry">
+          <div class="lane-head">
+            <div class="lane-title">① 用户入口与权限</div>
+            <div class="lane-sub">登录 / 角色 / 会话</div>
+          </div>
+          <div class="flow">
+            <div class="box box--orange"><strong>登录 / 注册</strong><small>账号 + 密码 + 图形验证码</small></div>
+            <div class="down">↓</div>
+            <div class="box box--orange"><strong>JWT 鉴权</strong><small>role = admin / user</small></div>
+            <div class="down">↓</div>
+            <div class="box box--orange"><strong>选择知识库（1..N）</strong><small>只读列表；至少选 1 个</small></div>
+            <div class="down">↓</div>
+            <div class="box box--orange"><strong>设置推理参数</strong><small>温度 / Top P / max_tokens / 历史轮数</small></div>
+            <div class="down">↓</div>
+            <div class="box box--orange"><strong>新建 / 选择会话</strong><small>会话按 user_id 隔离；可改名 / 删除</small></div>
+            <div class="down">↓</div>
+            <div class="box box--primary"><strong>输入问题</strong><small>Enter 发送；SSE 流式返回</small></div>
+          </div>
+        </section>
+
+        <div class="connector">→<span>问题 + kb_ids</span></div>
+
+        <section class="lane lane--online">
+          <div class="lane-head">
+            <div class="lane-title">② 在线 RAG 问答</div>
+            <div class="lane-sub">检索 → 融合 → Prompt → 流式生成 → 引用</div>
+          </div>
+          <div class="flow">
+            <div class="box box--green"><strong>问题校验</strong><small>会话归属 / 知识库存在 / 参数范围</small></div>
+            <div class="down">↓</div>
+            <div class="box box--green"><strong>bge-m3 查询向量</strong><small>本地 1024 维；归一化</small></div>
+            <div class="down">↓</div>
+            <div class="box box--blue"><strong>按知识库检索模式分流</strong><small>每个知识库配置 dense 或 hybrid</small></div>
+            <div class="branch">
+              <div class="box box--green"><strong>稠密检索</strong><small>Milvus COSINE<br />按 kb_id 过滤</small></div>
+              <div class="box box--green"><strong>混合检索</strong><small>Milvus 稠密 + BM25<br />RRF 融合</small></div>
+            </div>
+            <div class="merge"></div>
+            <div class="box box--green"><strong>跨知识库 RRF 合并</strong><small>按 chunk_id 去重；取 Top K（默认 5）</small></div>
+            <div class="down">↓</div>
+            <div class="box box--blue"><strong>MySQL 补齐来源</strong><small>文件名 / 知识库名 / 页码 / 片段</small></div>
+            <div class="down">↓</div>
+            <div class="box box--green"><strong>组装中文 Prompt</strong><small>系统规则 + 历史 N 轮 + 参考资料 + 当前问题</small></div>
+            <div class="down">↓</div>
+            <div class="box box--primary"><strong>DeepSeek Flash 流式生成</strong><small>非思考模式；温度生效；Top P 受 API 限制</small></div>
+            <div class="down">↓</div>
+            <div class="box box--blue"><strong>SSE 事件流</strong><small>meta → citations → delta… → done</small></div>
+            <div class="down">↓</div>
+            <div class="box box--blue"><strong>持久化 + 前端渲染</strong><small>消息 / 引用 / usage；答案 + 引用卡片 + 来源抽屉</small></div>
+            <div class="side-note"><b>空结果分支：</b>不调用 LLM，直接返回固定中文拒答，并写入消息记录。</div>
+          </div>
+        </section>
+
+        <div class="connector">←<span>向量 / BM25 索引</span></div>
+
+        <section class="lane lane--offline">
+          <div class="lane-head">
+            <div class="lane-title">③ 离线知识库</div>
+            <div class="lane-sub">管理员上传 / 解析 / 入库</div>
+          </div>
+          <div class="flow">
+            <div class="box box--purple"><strong>上传文档</strong><small>PDF / PPTX / MD / PNG / JPG / DOCX</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>解析 / OCR</strong><small>PyMuPDF / RapidOCR / python-pptx / python-docx</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>文本切块</strong><small>chunk_size / overlap；保留页码与字符区间</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>bge-m3 批量编码</strong><small>1024 维；GPU 自动检测 / CPU 回退</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>写入 Milvus</strong><small>content + dense + BM25 sparse</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>状态流转</strong><small>pending → parsing → chunking → embedding → indexing → ready</small></div>
+            <div class="down">↓</div>
+            <div class="box box--purple"><strong>文档块管理 / Wiki</strong><small>预览 / 编辑 / 删除；只读 Wiki 实时组装</small></div>
+            <div class="side-note" style="border-color:#ddd6fe;background:#faf8ff;color:#6d28d9;"><b>说明：</b>编辑块会 upsert Milvus 向量；删除文档会清理 MySQL、Milvus 与文件。</div>
+          </div>
+        </section>
+      </div>
+
+      <div class="bottom">
+        <b>数据与支撑层</b>
+        <span class="pill">MySQL：用户 / 知识库 / 文档 / 文档块 / 会话 / 消息</span>
+        <span class="pill">Milvus：dense + BM25</span>
+        <span class="pill">bge-m3：本地编码</span>
+        <span class="pill">DeepSeek：deepseek-flash</span>
+        <span class="pill">JWT + 角色</span>
+        <span class="pill">日志：控制台 + logs/app.log</span>
+      </div>
+
+      <div class="diff">
+        <b>与参考图的差异：</b>参考图包含 Redis/MySQL 高频问答缓存、BM25 命中阈值、意图识别、多查询/子问题/假设文档检索、reranker、父子文档去重等增强链路；
+        当前实现保留“离线编译 → 混合召回 → Prompt → 流式生成 → 引用”的主干，未引入 FAQ 缓存、意图分类、多路查询扩展与 reranker，以降低首版复杂度。后续可在“检索前后”插入这些模块，主流程不变。
+      </div>
+    </div>
+  </body>
+</html>

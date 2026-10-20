@@ -1,0 +1,22 @@
+"""初始化数据库表。"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from enterprise_rag.config import get_settings  # noqa: E402
+from enterprise_rag.db import Database  # noqa: E402
+
+
+def main() -> None:
+    settings = get_settings()
+    db = Database(settings.database_url)
+    db.create_all()
+    print(f"数据库表已创建：{settings.database_url}")
+
+
+if __name__ == "__main__":
+    main()

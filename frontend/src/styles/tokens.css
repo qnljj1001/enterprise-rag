@@ -1,0 +1,31 @@
+:root {
+  --zc-primary: #6d5df6;
+  --zc-primary-strong: #5a48e8;
+  --zc-primary-soft: #efedff;
+  --zc-cyan: #22d3ee;
+  --zc-pink: #f472b6;
+  --zc-ink: #12142b;
+  --zc-ink-soft: #343852;
+  --zc-muted: #6b7088;
+  --zc-muted-2: #9297ad;
+  --zc-line: #e8e7f4;
+  --zc-line-strong: #d8d6ea;
+  --zc-canvas: #f7f7fe;
+  --zc-surface: #ffffff;
+  --zc-surface-soft: #fbfbfe;
+  --zc-success: #0f9f6e;
+  --zc-success-soft: #e8f8f1;
+  --zc-warning: #b26a00;
+  --zc-warning-soft: #fff5e6;
+  --zc-danger: #d92d20;
+  --zc-danger-soft: #fef1f0;
+  --zc-radius-lg: 22px;
+  --zc-radius-md: 16px;
+  --zc-radius-sm: 10px;
+  --zc-shadow-card: 0 1px 2px rgba(18, 20, 43, 0.04), 0 18px 44px rgba(18, 20, 43, 0.06);
+  --zc-shadow-lift: 0 18px 50px rgba(18, 20, 43, 0.12);
+  --zc-font-sans: "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --zc-font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  --zc-header-height: 68px;
+  --zc-transition: 180ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
