@@ -17,6 +17,7 @@ frontend/test-results/
 frontend/playwright-report/
 frontend/.tmp/
 *.log
+*.tsbuildinfo
 .DS_Store
 pytest-of-*/
 torchinductor_*/
